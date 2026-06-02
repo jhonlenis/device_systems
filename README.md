@@ -118,21 +118,19 @@ http://127.0.0.1:8000/docs
 ```
 
 ```markdown
-![Swagger UI](images/SwaggerUI.png)
+![Swagger UI](images/Swagger.png)
 ```
 
 ---
 
 # Capturas de ReDoc
 
-Agregar la captura tomada desde:
-
 ```text
 http://127.0.0.1:8000/redoc
 ```
 
 ```markdown
-![ReDoc](images/ReDoc.png)
+![ReDoc](images/Redoc.png)
 ```
 
 ---
