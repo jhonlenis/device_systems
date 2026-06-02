@@ -1,33 +1,28 @@
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr
 from typing import Optional
-from enum import Enum
 
 
-class RoleEnum(str, Enum):
-    admin = "admin"
-    support = "support"
-    user = "user"
-
-
-class UserCreate(BaseModel):
+class UserBase(BaseModel):
     name: str
     email: EmailStr
-    role: RoleEnum
-    is_active: bool = True
-
-    @field_validator("name")
-    @classmethod
-    def name_min_length(cls, v: str) -> str:
-        if len(v.strip()) < 3:
-            raise ValueError("El nombre debe tener mínimo 3 caracteres.")
-        return v.strip()
-
-
-class UserResponse(BaseModel):
-    id: int
-    name: str
-    email: EmailStr
-    role: RoleEnum
+    role: str
     is_active: bool
 
-    model_config = {"from_attributes": True}
+
+class UserCreate(UserBase):
+    pass
+
+
+class UserUpdate(UserBase):
+    pass
+
+
+class UserPatch(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    role: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+class UserResponse(UserBase):
+    id: int
