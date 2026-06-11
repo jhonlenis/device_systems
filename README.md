@@ -277,6 +277,11 @@ class UserCreate(BaseModel):
 
 ---
 
+## Link del video
+
+
+---
+
 # Reflexión Final
 
 La implementación de persistencia de datos mediante SQLAlchemy y PostgreSQL permitió transformar una API que inicialmente trabajaba con datos temporales en memoria en una solución más robusta y cercana a entornos reales de desarrollo.
