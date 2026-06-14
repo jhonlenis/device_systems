@@ -1,23 +1,32 @@
 from fastapi import FastAPI
-from app.routes.user_routes import router as user_router
 
-app = FastAPI(
-    title="device_systems API",
-    description=(
-        "API REST para la gestión de usuarios del sistema **device_systems**.\n\n"
-        "Desarrollada con FastAPI + Pydantic v2."
-    ),
-    version="1.0.0",
-    contact={"name": "device_systems Team"},
+from app.database.connection import (
+    engine,
+    Base
 )
 
-app.include_router(user_router)
+from app.models.user_model import User
+
+from app.routes.user_routes import (
+    router
+)
+
+Base.metadata.create_all(
+    bind=engine
+)
+
+app = FastAPI(
+    title="Device Systems API",
+    description="CRUD de usuarios usando FastAPI + SQLAlchemy + PostgreSQL Neon",
+    version="1.0.0"
+)
+
+app.include_router(router)
 
 
-@app.get("/", tags=["Root"])
+@app.get("/")
 def root():
     return {
-        "app":     "device_systems",
-        "version": "1.0.0",
-        "docs":    "/docs",
+        "message":
+        "Device Systems API funcionando correctamente"
     }
