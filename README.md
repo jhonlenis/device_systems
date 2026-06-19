@@ -277,11 +277,14 @@ class UserCreate(BaseModel):
 
 ---
 
-## Link del video
+## 🎥 Link del Video
 
-https://youtu.be/DEq0vcbImUg
+Puedes ver el video de la actividad en el siguiente enlace:
+
+**➡️ [Ver video en YouTube](https://youtu.be/DEq0vcbImUg)**
 
 ---
+
 
 # Reflexión Final
 
