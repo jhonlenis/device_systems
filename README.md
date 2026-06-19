@@ -1,327 +1,149 @@
 # Device Systems API
 
-## GA1-220501096-01-AA1-EV09
-### FastAPI con SQLAlchemy: Persistencia de Datos y CRUD sobre Base de Datos
+## Descripción
+
+API desarrollada con FastAPI para la gestión de usuarios, dispositivos y préstamos de equipos tecnológicos. El proyecto implementa SQLAlchemy como ORM y Alembic para el control de migraciones de base de datos.
 
 ---
 
-# Integrante
+# Inicialización de Alembic
 
-- Jhon Alexander Lenis Holguín
----
+Se configuró Alembic para administrar las migraciones de la base de datos.
 
-# Descripción del Proyecto
+### Evidencia de ejecución de `alembic init`
 
-Device Systems API es una aplicación desarrollada con FastAPI que implementa operaciones CRUD para la gestión de usuarios utilizando persistencia de datos mediante SQLAlchemy y PostgreSQL alojado en Neon Tech.
-
-El proyecto permite:
-
-- Crear usuarios.
-- Consultar usuarios.
-- Buscar usuarios por ID.
-- Filtrar usuarios por rol.
-- Actualizar usuarios.
-- Eliminar usuarios.
-- Validar datos con Pydantic.
-- Gestionar errores controlados.
-- Documentar automáticamente la API mediante Swagger UI.
+![Alembic Init](images/Carpeta_alembic.png)
 
 ---
 
-# Tecnologías Utilizadas
+# Creación de Migraciones
 
-- Python 3
-- FastAPI
-- SQLAlchemy
-- Pydantic v2
-- PostgreSQL
-- Neon Tech
-- Uvicorn
-- Swagger/OpenAPI
+Se generó una migración automática a partir de los modelos definidos en SQLAlchemy utilizando el comando:
 
----
+```bash
+alembic revision --autogenerate -m "create devices and loans tables"
+```
 
-# Estructura del Proyecto
+### Evidencia
 
-La aplicación fue organizada siguiendo la arquitectura propuesta en la guía de aprendizaje.
+![Creación de Migración](images/Version_Migracion.png)
 
-![Estructura del Proyecto](images/Carpetas%20y%20Archivos.png)
+### Carpeta de migraciones generadas
+
+![Migraciones Alembic](images/Migraciones_alembic.png)
 
 ---
 
-# Base de Datos Generada
+# Aplicación de Migraciones
 
-Se utilizó PostgreSQL mediante Neon Tech para almacenar la información de manera persistente.
+Se aplicaron las migraciones pendientes a la base de datos mediante el comando:
 
-### Base de datos en Neon Tech
+```bash
+alembic upgrade head
+```
 
-![Base de Datos](images/Neon%20tech.png)
+### Evidencia
 
-### Tabla actualizada con registros
+![Alembic Upgrade](images/alembic_upgrade.png)
 
-![Base de Datos Actualizada](images/NeonTechActualizado.png)
+---
+
+# Estructura de Tablas Generadas
+
+Después de ejecutar las migraciones, se generaron las tablas correspondientes en la base de datos:
+
+- users
+- devices
+- loans
+- alembic_version
+
+### Evidencia
+
+![Estructura de Tablas](images/tables.png)
 
 ---
 
 # Documentación Swagger UI
 
-FastAPI genera automáticamente la documentación interactiva de la API.
+FastAPI genera automáticamente la documentación interactiva de la API mediante Swagger.
 
-Ruta:
+### Evidencia
 
-```text
-http://127.0.0.1:8000/docs
-```
-
-![Swagger UI](images/swigger.png)
+![Swagger UI](images/swagger.png)
 
 ---
 
-# Evidencia de Pruebas de los Endpoints
+# Creación de Usuario
 
-## Crear Usuario
+Se realizó el registro de un nuevo usuario utilizando el endpoint correspondiente.
 
-Endpoint:
+### Evidencia
 
-```http
-POST /users/
-```
-
-![Crear Usuario](images/createUsers.png)
+![Nuevo Usuario](images/nuevoUsuario.png)
 
 ---
 
-## Listar Usuarios
+# Registro de Dispositivo
 
-Endpoint:
+Se registró un dispositivo en el sistema para posteriormente ser asignado mediante préstamos.
 
-```http
-GET /users/
-```
+### Evidencia
 
-![Listar Usuarios](images/GetUser.png)
+![Registrar Dispositivo](images/registrarDispositivo.png)
 
 ---
 
-## Buscar Usuario por ID
+# Creación de Préstamo
 
-Endpoint:
+Se creó un préstamo asociando un usuario con un dispositivo disponible.
 
-```http
-GET /users/{user_id}
-```
+### Evidencia
 
-![Buscar Usuario](images/BuscarID.png)
+![Crear Préstamo](images/crearPrestamo.png)
 
 ---
 
-## Filtrar Usuarios por Rol
+# Consultas con JOINs
 
-Endpoint:
+Se realizaron consultas utilizando JOINs para obtener información relacionada entre usuarios, dispositivos y préstamos.
 
-```http
-GET /users/?role=admin
-```
+### Evidencia
 
-![Filtrar por Rol](images/GetAdmin.png)
+![Consultar Préstamos](images/consultarPrestamos.png)
 
 ---
 
-## Actualizar Usuario Completo
+# Aplicación de Filtros
 
-Endpoint:
+Se implementaron filtros para consultar información específica de los préstamos registrados.
 
-```http
-PUT /users/{user_id}
-```
+### Evidencia
 
-![Actualizar Usuario](images/UserUpdate.png)
+![Filtro por Rol](images/filtrarRol.png)
 
 ---
 
-## Actualización Parcial
+# Devolución de Dispositivo
 
-Endpoint:
+Se realizó la devolución de un dispositivo prestado, actualizando automáticamente su estado de disponibilidad.
 
-```http
-PATCH /users/{user_id}
-```
+### Evidencia
 
-![Actualizar Parcialmente](images/PatchID.png)
+![Préstamo Devuelto](images/prestamoDevuelto.png)
 
 ---
 
-## Eliminar Usuario
+# Link Video
 
-Endpoint:
-
-```http
-DELETE /users/{user_id}
-```
-
-![Eliminar Usuario](images/DeleteID.png)
 
 ---
 
-# Evidencia de Errores Controlados
+# Reflexión
 
-La aplicación implementa manejo de errores utilizando excepciones HTTP y validaciones de Pydantic.
+El uso de Alembic para la gestión de migraciones permite mantener un control adecuado sobre la evolución de la estructura de la base de datos. Gracias a ello, los cambios realizados en los modelos pueden aplicarse de forma organizada y segura en diferentes entornos de trabajo.
 
----
+Las relaciones entre entidades como usuarios, dispositivos y préstamos permiten representar situaciones reales de manera eficiente, garantizando la integridad de los datos y evitando inconsistencias.
 
-## Error por Email Duplicado
+Asimismo, las consultas avanzadas mediante JOINs y filtros facilitan la obtención de información relevante para la gestión del sistema, mejorando el rendimiento de las búsquedas y proporcionando resultados más precisos.
 
-Código esperado:
-
-```http
-400 Bad Request
-```
-
-![Email Duplicado](images/EmailDuplicado.png)
-
----
-
-## Usuario No Encontrado
-
-Código esperado:
-
-```http
-404 Not Found
-```
-
-![Usuario No Encontrado](images/IDnoEncontrado.png)
-
----
-
-## Correo Electrónico Inválido
-
-Código esperado:
-
-```http
-422 Unprocessable Entity
-```
-
-![Correo Inválido](images/CorreoInvalido.png)
-
----
-
-## Rol No Permitido
-
-Código esperado:
-
-```http
-422 Unprocessable Entity
-```
-
-![Rol No Permitido](images/RoleDiferente.png)
-
----
-
-# Diferencia entre Modelo SQLAlchemy y Schema Pydantic
-
-## Modelo SQLAlchemy
-
-Los modelos SQLAlchemy representan las tablas de la base de datos.
-
-Su función principal es:
-
-- Crear tablas.
-- Definir columnas.
-- Establecer restricciones.
-- Realizar consultas CRUD.
-- Gestionar la persistencia de los datos.
-
-Ejemplo:
-
-```python
-class User(Base):
-    __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    email = Column(String, unique=True)
-```
-
----
-
-## Schema Pydantic
-
-Los schemas Pydantic representan los datos de entrada y salida de la API.
-
-Su función principal es:
-
-- Validar información.
-- Garantizar tipos de datos correctos.
-- Definir respuestas.
-- Controlar los datos enviados por el cliente.
-
-Ejemplo:
-
-```python
-class UserCreate(BaseModel):
-    name: str
-    email: EmailStr
-    role: str
-```
-
----
-
-## Diferencia Principal
-
-| SQLAlchemy | Pydantic |
-|------------|-----------|
-| Representa tablas | Representa datos |
-| Maneja la base de datos | Maneja validaciones |
-| Guarda información | Valida información |
-| ORM | Schema |
-
----
-
-## 🎥 Link del Video
-
-Puedes ver el video de la actividad en el siguiente enlace:
-
-**➡️ [Ver video en YouTube](https://youtu.be/DEq0vcbImUg)**
-
----
-
-
-# Reflexión Final
-
-La implementación de persistencia de datos mediante SQLAlchemy y PostgreSQL permitió transformar una API que inicialmente trabajaba con datos temporales en memoria en una solución más robusta y cercana a entornos reales de desarrollo.
-
-El uso de FastAPI facilitó la construcción de endpoints bien documentados, mientras que Pydantic permitió validar la información recibida y garantizar la integridad de los datos.
-
-Por otra parte, SQLAlchemy simplificó la interacción con la base de datos mediante el uso de modelos orientados a objetos, evitando la necesidad de escribir consultas SQL complejas de manera constante.
-
-La utilización de Neon Tech permitió trabajar con una base de datos PostgreSQL en la nube, ofreciendo persistencia real, disponibilidad y facilidad de administración.
-
-En conclusión, la persistencia de datos es un componente fundamental en el desarrollo de aplicaciones modernas, ya que garantiza la conservación de la información, mejora la escalabilidad de los sistemas y permite construir soluciones más confiables y profesionales.
-
----
-
-# Ejecución del Proyecto
-
-Instalar dependencias:
-
-```bash
-pip install -r requirements.txt
-```
-
-Ejecutar servidor:
-
-```bash
-uvicorn app.main:app --reload
-```
-
-Documentación Swagger:
-
-```text
-http://127.0.0.1:8000/docs
-```
-
-Documentación ReDoc:
-
-```text
-http://127.0.0.1:8000/redoc
-```
+En conclusión, las migraciones, las relaciones entre tablas y las consultas avanzadas son componentes fundamentales para el desarrollo de aplicaciones robustas, escalables y fáciles de mantener.

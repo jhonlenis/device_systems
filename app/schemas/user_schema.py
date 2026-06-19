@@ -1,70 +1,59 @@
-from pydantic import BaseModel, EmailStr, field_validator
-from typing import Optional
-from enum import Enum
+from datetime import datetime
+from typing import Literal, Optional
 
-
-class RoleEnum(str, Enum):
-    admin = "admin"
-    support = "support"
-    user = "user"
-
-
-class UserCreate(BaseModel):
-    name: str
-    email: EmailStr
-    role: RoleEnum
-    is_active: bool = True
-
-    @field_validator("name")
-    @classmethod
-    def name_min_length(cls, v: str) -> str:
-        if len(v.strip()) < 3:
-            raise ValueError("El nombre debe tener mínimo 3 caracteres.")
-        return v.strip()
-
-
-class UserResponse(BaseModel):
-    id: int
-    name: str
-    email: EmailStr
-    role: RoleEnum
-    is_active: bool
-
-    model_config = {"from_attributes": True}
 from pydantic import (
     BaseModel,
+    ConfigDict,
     EmailStr,
-    Field,
-    ConfigDict
+    Field
 )
-
-from typing import Optional
-from typing import Literal
-
-from datetime import datetime
 
 
 class UserCreate(BaseModel):
+
     name: str = Field(
         ...,
-        min_length=3
+        min_length=3,
+        description="Nombre completo del usuario"
     )
 
-    email: EmailStr
+    email: EmailStr = Field(
+        ...,
+        description="Correo electrónico del usuario"
+    )
 
     role: Literal[
         "admin",
         "support",
         "user"
-    ]
+    ] = Field(
+        ...,
+        description="Rol del usuario"
+    )
 
-    is_active: bool = True
+    is_active: bool = Field(
+        default=True,
+        description="Estado del usuario"
+    )
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "name": "Juan Pérez",
+                "email": "juan@sena.edu.co",
+                "role": "user",
+                "is_active": True
+            }
+        }
+    )
 
 
 class UserUpdate(BaseModel):
+
     name: str = Field(
         ...,
-        min_length=3
+        min_length=3,
+        description="Nombre completo del usuario"
     )
 
     email: EmailStr
@@ -77,11 +66,24 @@ class UserUpdate(BaseModel):
 
     is_active: bool
 
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "name": "Juan Pérez",
+                "email": "juan@sena.edu.co",
+                "role": "support",
+                "is_active": True
+            }
+        }
+    )
+
 
 class UserPatch(BaseModel):
+
     name: Optional[str] = Field(
-        None,
-        min_length=3
+        default=None,
+        min_length=3,
+        description="Nombre del usuario"
     )
 
     email: Optional[EmailStr] = None
@@ -96,12 +98,16 @@ class UserPatch(BaseModel):
 
     is_active: Optional[bool] = None
 
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "role": "admin"
+            }
+        }
+    )
+
 
 class UserResponse(BaseModel):
-
-    model_config = ConfigDict(
-        from_attributes=True
-    )
 
     id: int
     name: str
@@ -109,3 +115,7 @@ class UserResponse(BaseModel):
     role: str
     is_active: bool
     created_at: datetime
+
+    model_config = ConfigDict(
+        from_attributes=True
+    )

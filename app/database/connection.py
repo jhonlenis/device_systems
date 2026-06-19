@@ -1,33 +1,18 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import sessionmaker
 
-from dotenv import load_dotenv
-import os
+DATABASE_URL = "sqlite:///./device_systems.db"
 
-# Cargar variables del archivo .env
-load_dotenv()
-
-# Obtener la URL de conexión
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-if not DATABASE_URL:
-    raise ValueError(
-        "No se encontró DATABASE_URL en el archivo .env"
-    )
-
-# Crear conexión con Neon PostgreSQL
 engine = create_engine(
     DATABASE_URL,
-    pool_pre_ping=True,
-    pool_recycle=300
+    connect_args={"check_same_thread": False}
 )
 
-# Crear sesiones de base de datos
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
     bind=engine
 )
 
-# Base para modelos SQLAlchemy
 Base = declarative_base()

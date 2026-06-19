@@ -10,9 +10,9 @@ from sqlalchemy.orm import relationship
 from app.database.connection import Base
 
 
-class User(Base):
+class Device(Base):
 
-    __tablename__ = "users"
+    __tablename__ = "devices"
 
     id = Column(
         Integer,
@@ -25,19 +25,24 @@ class User(Base):
         nullable=False
     )
 
-    email = Column(
-        String(150),
+    serial_number = Column(
+        String(100),
         unique=True,
         nullable=False,
         index=True
     )
 
-    role = Column(
+    device_type = Column(
         String(50),
         nullable=False
     )
 
-    is_active = Column(
+    brand = Column(
+        String(100),
+        nullable=True
+    )
+
+    is_available = Column(
         Boolean,
         default=True,
         nullable=False
@@ -45,20 +50,11 @@ class User(Base):
 
     created_at = Column(
         DateTime,
-        default=datetime.utcnow,
-        nullable=False
+        default=datetime.utcnow
     )
 
-    # Relación: un usuario puede tener muchos préstamos
     loans = relationship(
         "Loan",
-        back_populates="user",
+        back_populates="device",
         cascade="all, delete-orphan"
     )
-
-    def __repr__(self):
-        return (
-            f"<User(id={self.id}, "
-            f"name='{self.name}', "
-            f"email='{self.email}')>"
-        )
