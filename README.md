@@ -278,6 +278,7 @@ class UserCreate(BaseModel):
 ---
 
 ## Link del video
+
 https://youtu.be/DEq0vcbImUg
 
 ---
