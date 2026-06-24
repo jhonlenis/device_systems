@@ -3,17 +3,17 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.models.device_model import Device
-from app.models.loan_model import Loan
 
 
 def create_device(
     db: Session,
     device
 ):
-
-    existing = db.query(Device).filter(
-        Device.serial_number == device.serial_number
-    ).first()
+    existing = (
+        db.query(Device)
+        .filter(Device.serial_number == device.serial_number)
+        .first()
+    )
 
     if existing:
         raise HTTPException(
@@ -42,7 +42,6 @@ def get_devices(
     is_available=None,
     search=None
 ):
-
     query = db.query(Device)
 
     valid_types = [
@@ -56,7 +55,6 @@ def get_devices(
     ]
 
     if device_type:
-
         if device_type.lower() not in valid_types:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -93,10 +91,11 @@ def get_device_by_id(
     db: Session,
     device_id: int
 ):
-
-    device = db.query(Device).filter(
-        Device.id == device_id
-    ).first()
+    device = (
+        db.query(Device)
+        .filter(Device.id == device_id)
+        .first()
+    )
 
     if not device:
         raise HTTPException(
@@ -112,16 +111,19 @@ def update_device(
     device_id: int,
     device_data
 ):
-
     device = get_device_by_id(
         db,
         device_id
     )
 
-    duplicate = db.query(Device).filter(
-        Device.serial_number == device_data.serial_number,
-        Device.id != device_id
-    ).first()
+    duplicate = (
+        db.query(Device)
+        .filter(
+            Device.serial_number == device_data.serial_number,
+            Device.id != device_id
+        )
+        .first()
+    )
 
     if duplicate:
         raise HTTPException(
@@ -133,7 +135,6 @@ def update_device(
     device.serial_number = device_data.serial_number
     device.device_type = device_data.device_type
     device.brand = device_data.brand
-    device.is_available = device_data.is_available
 
     db.commit()
     db.refresh(device)
@@ -146,7 +147,6 @@ def patch_device(
     device_id: int,
     device_data
 ):
-
     device = get_device_by_id(
         db,
         device_id
@@ -157,11 +157,14 @@ def patch_device(
     )
 
     if "serial_number" in update_data:
-
-        duplicate = db.query(Device).filter(
-            Device.serial_number == update_data["serial_number"],
-            Device.id != device_id
-        ).first()
+        duplicate = (
+            db.query(Device)
+            .filter(
+                Device.serial_number == update_data["serial_number"],
+                Device.id != device_id
+            )
+            .first()
+        )
 
         if duplicate:
             raise HTTPException(
@@ -170,11 +173,7 @@ def patch_device(
             )
 
     for key, value in update_data.items():
-        setattr(
-            device,
-            key,
-            value
-        )
+        setattr(device, key, value)
 
     db.commit()
     db.refresh(device)
@@ -186,7 +185,6 @@ def delete_device(
     db: Session,
     device_id: int
 ):
-
     device = get_device_by_id(
         db,
         device_id
@@ -198,24 +196,3 @@ def delete_device(
     return {
         "message": "Dispositivo eliminado correctamente."
     }
-
-
-def get_device_loans(
-    db: Session,
-    device_id: int
-):
-
-    device = get_device_by_id(
-        db,
-        device_id
-    )
-
-    loans = (
-        db.query(Loan)
-        .filter(
-            Loan.device_id == device.id
-        )
-        .all()
-    )
-
-    return loans

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import Boolean
 from sqlalchemy import Column
@@ -32,9 +32,15 @@ class User(Base):
         index=True
     )
 
+    hashed_password = Column(
+        String(255),
+        nullable=False
+    )
+
     role = Column(
         String(50),
-        nullable=False
+        nullable=False,
+        default="user"
     )
 
     is_active = Column(
@@ -44,12 +50,11 @@ class User(Base):
     )
 
     created_at = Column(
-        DateTime,
-        default=datetime.utcnow,
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
         nullable=False
     )
 
-    # Relación: un usuario puede tener muchos préstamos
     loans = relationship(
         "Loan",
         back_populates="user",
@@ -58,7 +63,10 @@ class User(Base):
 
     def __repr__(self):
         return (
-            f"<User(id={self.id}, "
+            f"<User("
+            f"id={self.id}, "
             f"name='{self.name}', "
-            f"email='{self.email}')>"
+            f"email='{self.email}', "
+            f"role='{self.role}'"
+            f")>"
         )

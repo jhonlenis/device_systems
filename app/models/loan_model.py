@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import Column
 from sqlalchemy import DateTime
@@ -33,12 +33,12 @@ class Loan(Base):
     )
 
     loan_date = Column(
-        DateTime,
-        default=datetime.utcnow
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc)
     )
 
     return_date = Column(
-        DateTime,
+        DateTime(timezone=True),
         nullable=True
     )
 

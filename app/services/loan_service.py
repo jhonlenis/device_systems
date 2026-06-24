@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
 from sqlalchemy import and_, or_
@@ -69,7 +69,6 @@ def get_loans(
         .join(Device)
     )
 
-    # Validar estado
     valid_status = [
         "active",
         "returned",
@@ -154,11 +153,17 @@ def return_device(
         )
 
     loan.status = "returned"
-    loan.return_date = datetime.utcnow()
+    loan.return_date = datetime.now(timezone.utc)
 
     device = db.query(Device).filter(
         Device.id == loan.device_id
     ).first()
+
+    if not device:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Dispositivo no encontrado."
+        )
 
     device.is_available = True
 

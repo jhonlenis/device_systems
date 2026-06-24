@@ -2,11 +2,20 @@ from typing import Optional
 
 from fastapi import APIRouter
 from fastapi import Depends
+from fastapi import Request
+from fastapi import Response
 from fastapi import status
 
 from sqlalchemy.orm import Session
 
 from app.dependencies.database_dependency import get_db
+
+from app.dependencies.auth_dependency import (
+    get_current_active_user,
+    require_admin
+)
+
+from app.config.limiter import limiter
 
 from app.schemas.user_schema import (
     UserCreate,
@@ -23,9 +32,10 @@ from app.services.user_service import (
     get_user_by_id,
     update_user,
     patch_user,
-    delete_user,
-    get_user_loans
+    delete_user
 )
+
+from app.services.loan_service import get_user_loans
 
 router = APIRouter(
     prefix="/users",
@@ -43,12 +53,15 @@ router = APIRouter(
     responses={
         201: {"description": "Usuario creado correctamente."},
         400: {"description": "El correo electrónico ya está registrado."},
+        401: {"description": "No autenticado."},
+        403: {"description": "Permisos insuficientes."},
         422: {"description": "Error de validación."}
     }
 )
 def create(
     user: UserCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(require_admin)
 ):
     return create_user(
         db,
@@ -60,14 +73,22 @@ def create(
     "/",
     response_model=list[UserResponse],
     summary="Listar usuarios",
-    description="Obtiene todos los usuarios registrados. Permite filtrar por rol, estado y ordenar los resultados.",
-    response_description="Lista de usuarios obtenida correctamente."
+    description="Obtiene todos los usuarios registrados.",
+    response_description="Lista de usuarios.",
+    responses={
+        200: {"description": "Lista de usuarios obtenida correctamente."},
+        401: {"description": "No autenticado."},
+        429: {"description": "Demasiadas solicitudes."}
+    }
 )
+@limiter.limit("30/minute")
 def list_users(
+    request: Request,
     role: Optional[str] = None,
     is_active: Optional[bool] = None,
     order_by: Optional[str] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_active_user)
 ):
     return get_users(
         db,
@@ -80,16 +101,18 @@ def list_users(
 @router.get(
     "/{user_id}",
     response_model=UserResponse,
-    summary="Consultar usuario por ID",
-    description="Obtiene la información de un usuario mediante su identificador.",
-    response_description="Usuario encontrado.",
+    summary="Consultar usuario",
+    description="Obtiene la información de un usuario por su ID.",
     responses={
+        200: {"description": "Usuario encontrado correctamente."},
+        401: {"description": "No autenticado."},
         404: {"description": "Usuario no encontrado."}
     }
 )
 def get_user(
     user_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_active_user)
 ):
     return get_user_by_id(
         db,
@@ -101,15 +124,17 @@ def get_user(
     "/{user_id}/loans",
     response_model=list[LoanDetailResponse],
     summary="Consultar préstamos de un usuario",
-    description="Obtiene el historial de préstamos realizados por un usuario.",
-    response_description="Historial de préstamos obtenido correctamente.",
+    description="Obtiene el historial de préstamos de un usuario con detalle del dispositivo asociado.",
     responses={
+        200: {"description": "Préstamos del usuario obtenidos correctamente."},
+        401: {"description": "No autenticado."},
         404: {"description": "Usuario no encontrado."}
     }
 )
 def user_loans(
     user_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_active_user)
 ):
     return get_user_loans(
         db,
@@ -122,17 +147,19 @@ def user_loans(
     response_model=UserResponse,
     summary="Actualizar usuario",
     description="Actualiza completamente la información de un usuario.",
-    response_description="Usuario actualizado correctamente.",
     responses={
+        200: {"description": "Usuario actualizado correctamente."},
         400: {"description": "Correo electrónico duplicado."},
-        404: {"description": "Usuario no encontrado."},
-        422: {"description": "Error de validación."}
+        401: {"description": "No autenticado."},
+        403: {"description": "Permisos insuficientes."},
+        404: {"description": "Usuario no encontrado."}
     }
 )
 def update(
     user_id: int,
     user: UserUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(require_admin)
 ):
     return update_user(
         db,
@@ -145,18 +172,20 @@ def update(
     "/{user_id}",
     response_model=UserResponse,
     summary="Actualizar parcialmente un usuario",
-    description="Actualiza uno o varios campos de un usuario.",
-    response_description="Usuario actualizado correctamente.",
+    description="Actualiza parcialmente la información de un usuario.",
     responses={
+        200: {"description": "Usuario actualizado correctamente."},
         400: {"description": "Correo electrónico duplicado."},
-        404: {"description": "Usuario no encontrado."},
-        422: {"description": "Error de validación."}
+        401: {"description": "No autenticado."},
+        403: {"description": "Permisos insuficientes."},
+        404: {"description": "Usuario no encontrado."}
     }
 )
 def patch(
     user_id: int,
     user: UserPatch,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(require_admin)
 ):
     return patch_user(
         db,
@@ -170,17 +199,23 @@ def patch(
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Eliminar usuario",
     description="Elimina un usuario del sistema.",
-    response_description="Usuario eliminado correctamente.",
     responses={
         204: {"description": "Usuario eliminado correctamente."},
+        401: {"description": "No autenticado."},
+        403: {"description": "Permisos insuficientes."},
         404: {"description": "Usuario no encontrado."}
     }
 )
 def delete(
     user_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(require_admin)
 ):
     delete_user(
         db,
         user_id
+    )
+
+    return Response(
+        status_code=status.HTTP_204_NO_CONTENT
     )

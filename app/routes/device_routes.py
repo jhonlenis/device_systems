@@ -10,8 +10,15 @@ from sqlalchemy.orm import Session
 
 from app.dependencies.database_dependency import get_db
 
+from app.dependencies.auth_dependency import (
+    get_current_active_user,
+    require_admin,
+    require_support_or_admin
+)
+
 from app.schemas.device_schema import (
     DeviceCreate,
+    DevicePut,
     DeviceUpdate,
     DeviceResponse
 )
@@ -24,9 +31,10 @@ from app.services.device_service import (
     get_device_by_id,
     update_device,
     patch_device,
-    delete_device,
-    get_device_loans
+    delete_device
 )
+
+from app.services.loan_service import get_device_loans
 
 router = APIRouter(
     prefix="/devices",
@@ -39,17 +47,19 @@ router = APIRouter(
     response_model=DeviceResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Crear dispositivo",
-    description="Registra un nuevo dispositivo tecnológico en el sistema.",
-    response_description="Dispositivo creado correctamente.",
+    description="Registra un nuevo dispositivo tecnológico.",
     responses={
         201: {"description": "Dispositivo creado correctamente."},
-        400: {"description": "El número de serie ya está registrado."},
+        400: {"description": "Número de serie duplicado."},
+        401: {"description": "No autenticado."},
+        403: {"description": "Permisos insuficientes."},
         422: {"description": "Error de validación."}
     }
 )
 def create(
     device: DeviceCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(require_support_or_admin)
 ):
     return create_device(
         db,
@@ -61,15 +71,15 @@ def create(
     "",
     response_model=list[DeviceResponse],
     summary="Listar dispositivos",
-    description="Obtiene todos los dispositivos registrados. Permite filtrar por tipo, marca, disponibilidad o realizar búsquedas.",
-    response_description="Lista de dispositivos obtenida correctamente."
+    description="Obtiene todos los dispositivos registrados."
 )
 def read_all(
     device_type: Optional[str] = None,
     brand: Optional[str] = None,
     is_available: Optional[bool] = Query(default=None),
     search: Optional[str] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_active_user)
 ):
     return get_devices(
         db,
@@ -83,16 +93,18 @@ def read_all(
 @router.get(
     "/{device_id}",
     response_model=DeviceResponse,
-    summary="Consultar dispositivo por ID",
-    description="Obtiene la información de un dispositivo mediante su identificador.",
-    response_description="Dispositivo encontrado.",
+    summary="Consultar dispositivo",
+    description="Obtiene la información de un dispositivo por su ID.",
     responses={
+        200: {"description": "Dispositivo encontrado correctamente."},
+        401: {"description": "No autenticado."},
         404: {"description": "Dispositivo no encontrado."}
     }
 )
 def read_one(
     device_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_active_user)
 ):
     return get_device_by_id(
         db,
@@ -103,16 +115,18 @@ def read_one(
 @router.get(
     "/{device_id}/loans",
     response_model=list[LoanDetailResponse],
-    summary="Consultar historial de préstamos del dispositivo",
-    description="Obtiene el historial completo de préstamos asociados a un dispositivo.",
-    response_description="Historial de préstamos obtenido correctamente.",
+    summary="Historial de préstamos",
+    description="Obtiene el historial de préstamos asociados a un dispositivo.",
     responses={
+        200: {"description": "Historial de préstamos obtenido correctamente."},
+        401: {"description": "No autenticado."},
         404: {"description": "Dispositivo no encontrado."}
     }
 )
 def device_loans(
     device_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_active_user)
 ):
     return get_device_loans(
         db,
@@ -125,17 +139,19 @@ def device_loans(
     response_model=DeviceResponse,
     summary="Actualizar dispositivo",
     description="Actualiza completamente la información de un dispositivo.",
-    response_description="Dispositivo actualizado correctamente.",
     responses={
+        200: {"description": "Dispositivo actualizado correctamente."},
         400: {"description": "Número de serie duplicado."},
-        404: {"description": "Dispositivo no encontrado."},
-        422: {"description": "Error de validación."}
+        401: {"description": "No autenticado."},
+        403: {"description": "Permisos insuficientes."},
+        404: {"description": "Dispositivo no encontrado."}
     }
 )
 def update(
     device_id: int,
-    device: DeviceCreate,
-    db: Session = Depends(get_db)
+    device: DevicePut,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_support_or_admin)
 ):
     return update_device(
         db,
@@ -147,19 +163,21 @@ def update(
 @router.patch(
     "/{device_id}",
     response_model=DeviceResponse,
-    summary="Actualizar parcialmente un dispositivo",
-    description="Actualiza uno o varios campos de un dispositivo.",
-    response_description="Dispositivo actualizado correctamente.",
+    summary="Actualizar parcialmente dispositivo",
+    description="Actualiza parcialmente la información de un dispositivo.",
     responses={
+        200: {"description": "Dispositivo actualizado correctamente."},
         400: {"description": "Número de serie duplicado."},
-        404: {"description": "Dispositivo no encontrado."},
-        422: {"description": "Error de validación."}
+        401: {"description": "No autenticado."},
+        403: {"description": "Permisos insuficientes."},
+        404: {"description": "Dispositivo no encontrado."}
     }
 )
 def patch(
     device_id: int,
     device: DeviceUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(require_support_or_admin)
 ):
     return patch_device(
         db,
@@ -173,15 +191,17 @@ def patch(
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Eliminar dispositivo",
     description="Elimina un dispositivo del sistema.",
-    response_description="Dispositivo eliminado correctamente.",
     responses={
         204: {"description": "Dispositivo eliminado correctamente."},
+        401: {"description": "No autenticado."},
+        403: {"description": "Permisos insuficientes."},
         404: {"description": "Dispositivo no encontrado."}
     }
 )
 def delete(
     device_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(require_admin)
 ):
     delete_device(
         db,
