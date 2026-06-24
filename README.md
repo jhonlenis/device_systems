@@ -1,445 +1,120 @@
-<<<<<<< HEAD
-# device_systems
+# Device Systems API - Seguridad en APIs REST
 
-## Descripción
+## Descripción del proyecto
+Este proyecto corresponde a una **API REST desarrollada con FastAPI** para la gestión de usuarios y dispositivos, aplicando medidas de seguridad para proteger el acceso a los recursos del sistema. Entre las funcionalidades implementadas se encuentran:
 
-**device_systems** es una API REST desarrollada con FastAPI para la gestión de usuarios. Durante la evolución del proyecto se implementó un CRUD completo, manejo de errores mediante excepciones HTTP, documentación automática con Swagger y ReDoc, validación de datos con Pydantic y reutilización de lógica mediante Dependency Injection.
-
----
-
-# Tecnologías Utilizadas
-
-* Python 3
-* FastAPI
-* Uvicorn
-* Pydantic
-* Swagger UI
-* ReDoc
+- Registro de usuarios.
+- Inicio de sesión con generación de token.
+- Autenticación con OAuth2/JWT.
+- Protección de rutas.
+- Restricción de acceso por roles.
+- Middleware con cabeceras de seguridad.
+- Rate limiting.
+- Configuración de CORS.
+- Migraciones con Alembic.
 
 ---
 
-# Estructura del Proyecto
+# Evidencias del proyecto
 
-```text
-device_systems/
-│
-├── app/
-│   ├── data/
-│   │   └── users_db.py
-│   │
-│   ├── dependencies/
-│   │   └── user_dependencies.py
-│   │
-│   ├── routes/
-│   │   └── user_routes.py
-│   │
-│   ├── schemas/
-│   │   └── user_schema.py
-│   │
-│   ├── services/
-│   │   └── user_service.py
-│   │
-│   └── main.py
-│
-├── images/
-│   ├── CrearUsuario.png
-│   ├── EliminarUsuario.png
-│   ├── IdBuscar.png
-│   ├── PatchActualizar.png
-│   └── PutActualizar.png
-│
-├── requirements.txt
-└── README.md
-```
+## 1. Captura de la estructura del proyecto
+La siguiente imagen muestra la organización general del proyecto, incluyendo carpetas de aplicación, migraciones, configuración y recursos utilizados para la API.
 
-## Explicación de la estructura
-
-### app/routes
-
-Contiene los endpoints de la API y define las rutas HTTP disponibles para los usuarios.
-
-### app/services
-
-Implementa la lógica de negocio relacionada con la gestión de usuarios.
-
-### app/schemas
-
-Contiene los modelos Pydantic utilizados para validar los datos de entrada y salida.
-
-### app/dependencies
-
-Incluye funciones reutilizables utilizadas mediante Dependency Injection.
-
-### app/data
-
-Simula una base de datos en memoria para almacenar usuarios.
-
-### main.py
-
-Punto de entrada principal de la aplicación FastAPI.
+![Estructura del proyecto](images/Estructura.png)
 
 ---
 
-# Ejecución del Proyecto
+## 2. Captura de migración Alembic aplicada
+En esta evidencia se muestra la aplicación de la migración con **Alembic**, confirmando la creación y actualización de la base de datos del proyecto.
 
-## Instalar dependencias
-=======
-# Device Systems API
-
-## Descripción
-
-API desarrollada con FastAPI para la gestión de usuarios, dispositivos y préstamos de equipos tecnológicos. El proyecto implementa SQLAlchemy como ORM y Alembic para el control de migraciones de base de datos.
+![Migración Alembic aplicada](images/Alembic.png)
 
 ---
 
-# Inicialización de Alembic
+## 3. Captura del registro de usuario
+A continuación se presenta la prueba del endpoint de registro de usuario, donde se realiza la creación correcta de un nuevo usuario en el sistema.
 
-Se configuró Alembic para administrar las migraciones de la base de datos.
-
-### Evidencia de ejecución de `alembic init`
-
-![Alembic Init](images/Carpeta_alembic.png)
+![Registro de usuario](images/RegistroUsuario.png)
 
 ---
 
-# Creación de Migraciones
+## 4. Captura del login y token generado
+En esta sección se evidencia el proceso de autenticación del usuario y la generación del token de acceso.
 
-Se generó una migración automática a partir de los modelos definidos en SQLAlchemy utilizando el comando:
->>>>>>> device_systems_security
+### Login
+![Login de usuario](images/Login.png)
 
-```bash
-alembic revision --autogenerate -m "create devices and loans tables"
-```
-
-<<<<<<< HEAD
-## Ejecutar servidor
-=======
-### Evidencia
-
-![Creación de Migración](images/Version_Migracion.png)
-
-### Carpeta de migraciones generadas
-
-![Migraciones Alembic](images/Migraciones_alembic.png)
+### Token generado
+![Token generado](images/TokenGenerado.png)
 
 ---
 
-# Aplicación de Migraciones
+## 5. Captura de `/auth/me`
+En esta evidencia se muestra el funcionamiento del endpoint `/auth/me`, el cual permite obtener la información del usuario autenticado mediante el token.
 
-Se aplicaron las migraciones pendientes a la base de datos mediante el comando:
->>>>>>> device_systems_security
-
-```bash
-alembic upgrade head
-```
-
-<<<<<<< HEAD
-## Acceder a la documentación
-
-Swagger UI:
-
-```text
-http://127.0.0.1:8000/docs
-```
-=======
-### Evidencia
-
-![Alembic Upgrade](images/alembic_upgrade.png)
->>>>>>> device_systems_security
-
-ReDoc:
-
-<<<<<<< HEAD
-```text
-http://127.0.0.1:8000/redoc
-```
+![Endpoint /auth/me](images/AutorizacionToken.png)
 
 ---
 
-# Capturas de Swagger UI
+## 6. Captura de acceso sin token
+La siguiente imagen demuestra el comportamiento del sistema cuando se intenta acceder a una ruta protegida sin enviar un token de autenticación.
 
-Agregar la captura tomada desde:
-
-```text
-http://127.0.0.1:8000/docs
-```
-
-```markdown
-![Swagger UI](images/SwaggerUI.png)
-```
+![Acceso sin token](images/AccesoSinToken.png)
 
 ---
 
-# Capturas de ReDoc
+## 7. Captura de acceso con rol no permitido
+En esta prueba se evidencia la restricción de acceso cuando un usuario intenta ingresar a una ruta para la cual no tiene permisos suficientes.
 
-Agregar la captura tomada desde:
-
-```text
-http://127.0.0.1:8000/redoc
-```
-
-```markdown
-![ReDoc](images/ReDoc.png)
-```
+![Acceso con rol no permitido](images/RolNoPermitido.png)
 
 ---
 
-# Evidencia de Pruebas de Endpoints
+## 8. Captura de Swagger/OpenAPI con OAuth2
+Aquí se muestra la documentación interactiva de la API mediante **Swagger/OpenAPI**, incluyendo la autenticación con **OAuth2** para probar los endpoints protegidos.
 
-## GET /users/{user_id}
-
-Consulta de usuario por identificador.
-
-![Buscar Usuario](images/IdBuscar.png)
+![Swagger con OAuth2](images/swagger.png)
 
 ---
 
-## POST /users
+## 9. Captura de cabeceras del middleware
+En esta evidencia se observan las cabeceras de seguridad agregadas por el middleware en las respuestas de la API.
 
-Creación de un nuevo usuario.
-
-![Crear Usuario](images/CrearUsuario.png)
-
----
-
-## PUT /users/{user_id}
-
-Actualización completa de un usuario.
-
-![Actualizar Usuario PUT](images/PutActualizar.png)
+![Cabeceras del middleware](images/middleware.png)
 
 ---
 
-## PATCH /users/{user_id}
+## 10. Captura de prueba de rate limiting
+Esta imagen muestra la restricción de múltiples intentos de acceso en un periodo corto de tiempo, evidenciando el funcionamiento del **rate limiting**.
 
-Actualización parcial de un usuario.
-
-![Actualizar Usuario PATCH](images/PatchActualizar.png)
-
----
-
-## DELETE /users/{user_id}
-
-Eliminación de un usuario.
-
-![Eliminar Usuario](images/EliminarUsuario.png)
+![Prueba de rate limiting](images/RutaLimitadaIntentos.png)
 
 ---
 
-# Evidencia de Errores Controlados
+# Explicación de CORS configurado
 
-La API implementa manejo de errores utilizando HTTPException.
+CORS (**Cross-Origin Resource Sharing**) es un mecanismo de seguridad que permite controlar qué orígenes pueden acceder a los recursos de una API. Su configuración es importante porque ayuda a restringir accesos no autorizados desde otros dominios y permite definir qué métodos, cabeceras y credenciales están permitidos.
 
-## Usuario no encontrado
+En este proyecto, CORS se configuró para controlar el acceso a la API y permitir únicamente las solicitudes necesarias, fortaleciendo así la seguridad del sistema.
 
-```json
-{
-  "detail": "Usuario no encontrado"
-}
-```
-
----
-
-## Correo electrónico duplicado
-
-```json
-{
-  "detail": "Correo electrónico duplicado"
-}
-```
-
----
-
-## Rol no permitido
-
-```json
-{
-  "detail": "Rol no permitido"
-}
-```
-
----
-
-## Actualización sin datos
-
-```json
-{
-  "detail": "Debe enviar al menos un campo para actualizar"
-}
-```
-
----
-
-## Eliminación de usuario inexistente
-
-```json
-{
-  "detail": "Usuario no encontrado"
-}
-```
-
----
-
-# Dependency Injection con Depends()
-
-Para reutilizar lógica común se implementó Dependency Injection mediante la función `Depends()` de FastAPI.
-
-Ejemplo implementado:
+## Ejemplo de configuración de CORS
 
 ```python
-def get_user(user: dict = Depends(get_user_or_404)):
-    return user
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 ```
 
-La dependencia `get_user_or_404()` busca un usuario por su identificador y, en caso de no existir, genera automáticamente una excepción HTTP 404.
-
-Beneficios obtenidos:
-
-* Reutilización de código.
-* Menor duplicación de lógica.
-* Mejor mantenimiento del proyecto.
-* Mayor claridad en los endpoints.
+### Link del video
 
 ---
 
-# Endpoints Implementados
+### Reflexión
 
-| Método | Endpoint         | Descripción              |
-| ------ | ---------------- | ------------------------ |
-| GET    | /users           | Listar usuarios          |
-| GET    | /users/{user_id} | Consultar usuario por ID |
-| POST   | /users           | Crear usuario            |
-| PUT    | /users/{user_id} | Actualización completa   |
-| PATCH  | /users/{user_id} | Actualización parcial    |
-| DELETE | /users/{user_id} | Eliminar usuario         |
-
----
-
-# Códigos de Estado HTTP Utilizados
-
-| Código | Descripción           |
-| ------ | --------------------- |
-| 200    | Operación exitosa     |
-| 201    | Recurso creado        |
-| 400    | Solicitud incorrecta  |
-| 404    | Recurso no encontrado |
-| 422    | Error de validación   |
-
----
-
-# Link del Video
-
-
-
----
-# Reflexión Final
-
-La evolución de la API device_systems permitió comprender cómo una aplicación REST básica puede transformarse en una solución más robusta y profesional mediante la incorporación de nuevos conceptos de FastAPI.
-
-Durante el desarrollo se implementó el CRUD completo del recurso users, se fortaleció la validación de datos utilizando modelos Pydantic y se mejoró el manejo de errores mediante excepciones HTTP con respuestas claras para el cliente.
-
-Asimismo, la utilización de Dependency Injection permitió reutilizar lógica común y reducir la duplicación de código, facilitando el mantenimiento y la escalabilidad del proyecto.
-
-Finalmente, la integración de Swagger UI y ReDoc proporcionó una documentación automática y profesional de la API, facilitando las pruebas, el entendimiento de los endpoints y la experiencia de desarrollo.
-=======
-# Estructura de Tablas Generadas
-
-Después de ejecutar las migraciones, se generaron las tablas correspondientes en la base de datos:
-
-- users
-- devices
-- loans
-- alembic_version
-
-### Evidencia
-
-![Estructura de Tablas](images/tables.png)
-
----
-
-# Documentación Swagger UI
-
-FastAPI genera automáticamente la documentación interactiva de la API mediante Swagger.
-
-### Evidencia
-
-![Swagger UI](images/swagger.png)
-
----
-
-# Creación de Usuario
-
-Se realizó el registro de un nuevo usuario utilizando el endpoint correspondiente.
-
-### Evidencia
-
-![Nuevo Usuario](images/nuevoUsuario.png)
-
----
-
-# Registro de Dispositivo
-
-Se registró un dispositivo en el sistema para posteriormente ser asignado mediante préstamos.
-
-### Evidencia
-
-![Registrar Dispositivo](images/registrarDispositivo.png)
-
----
-
-# Creación de Préstamo
-
-Se creó un préstamo asociando un usuario con un dispositivo disponible.
-
-### Evidencia
-
-![Crear Préstamo](images/crearPrestamo.png)
-
----
-
-# Consultas con JOINs
-
-Se realizaron consultas utilizando JOINs para obtener información relacionada entre usuarios, dispositivos y préstamos.
-
-### Evidencia
-
-![Consultar Préstamos](images/consultarPrestamos.png)
-
----
-
-# Aplicación de Filtros
-
-Se implementaron filtros para consultar información específica de los préstamos registrados.
-
-### Evidencia
-
-![Filtro por Rol](images/filtrarRol.png)
-
----
-
-# Devolución de Dispositivo
-
-Se realizó la devolución de un dispositivo prestado, actualizando automáticamente su estado de disponibilidad.
-
-### Evidencia
-
-![Préstamo Devuelto](images/prestamoDevuelto.png)
-
----
-
-# Link Video
-
-https://youtu.be/mha6NZ3x2Y0
-
----
-
-# Reflexión
-
-El uso de Alembic para la gestión de migraciones permite mantener un control adecuado sobre la evolución de la estructura de la base de datos. Gracias a ello, los cambios realizados en los modelos pueden aplicarse de forma organizada y segura en diferentes entornos de trabajo.
-
-Las relaciones entre entidades como usuarios, dispositivos y préstamos permiten representar situaciones reales de manera eficiente, garantizando la integridad de los datos y evitando inconsistencias.
-
-Asimismo, las consultas avanzadas mediante JOINs y filtros facilitan la obtención de información relevante para la gestión del sistema, mejorando el rendimiento de las búsquedas y proporcionando resultados más precisos.
-
-En conclusión, las migraciones, las relaciones entre tablas y las consultas avanzadas son componentes fundamentales para el desarrollo de aplicaciones robustas, escalables y fáciles de mantener.
->>>>>>> device_systems_security
+La seguridad en las APIs REST es fundamental porque protege la información, controla quién puede acceder a los recursos y reduce riesgos como accesos no autorizados o abuso del sistema. Implementar autenticación, autorización, rate limiting, cabeceras seguras y una correcta configuración de CORS permite construir servicios más confiables y preparados para entornos reales.

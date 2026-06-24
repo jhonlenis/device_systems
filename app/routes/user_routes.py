@@ -1,23 +1,3 @@
-<<<<<<< HEAD
-from fastapi import APIRouter, Depends, status
-from typing import Optional
-
-from app.schemas.user_schema import (
-    UserCreate,
-    UserUpdate,
-    UserPatch
-)
-
-from app.services.user_service import (
-    get_all_users,
-    create_user,
-    update_user,
-    patch_user,
-    delete_user
-)
-
-from app.dependencies.user_dependencies import get_user_or_404
-=======
 from typing import Optional
 
 from fastapi import APIRouter
@@ -56,7 +36,7 @@ from app.services.user_service import (
 )
 
 from app.services.loan_service import get_user_loans
->>>>>>> device_systems_security
+
 
 router = APIRouter(
     prefix="/users",
@@ -64,18 +44,6 @@ router = APIRouter(
 )
 
 
-<<<<<<< HEAD
-@router.get(
-    "/",
-    summary="Listar usuarios",
-    description="Obtiene todos los usuarios registrados"
-)
-def get_users(
-    role: Optional[str] = None,
-    is_active: Optional[bool] = None
-):
-    return get_all_users(role, is_active)
-=======
 @router.post(
     "/",
     response_model=UserResponse,
@@ -129,26 +97,10 @@ def list_users(
         is_active,
         order_by
     )
->>>>>>> device_systems_security
 
 
 @router.get(
     "/{user_id}",
-<<<<<<< HEAD
-    summary="Consultar usuario por ID"
-)
-def get_user(user: dict = Depends(get_user_or_404)):
-    return user
-
-
-@router.post(
-    "/",
-    status_code=status.HTTP_201_CREATED,
-    summary="Crear usuario"
-)
-def add_user(user: UserCreate):
-    return create_user(user)
-=======
     response_model=UserResponse,
     summary="Consultar usuario",
     description="Obtiene la información de un usuario por su ID.",
@@ -189,21 +141,10 @@ def user_loans(
         db,
         user_id
     )
->>>>>>> device_systems_security
 
 
 @router.put(
     "/{user_id}",
-<<<<<<< HEAD
-    status_code=status.HTTP_200_OK,
-    summary="Actualizar usuario completo"
-)
-def edit_user(
-    user_id: int,
-    user_data: UserUpdate
-):
-    return update_user(user_id, user_data)
-=======
     response_model=UserResponse,
     summary="Actualizar usuario",
     description="Actualiza completamente la información de un usuario.",
@@ -226,21 +167,10 @@ def update(
         user_id,
         user
     )
->>>>>>> device_systems_security
 
 
 @router.patch(
     "/{user_id}",
-<<<<<<< HEAD
-    status_code=status.HTTP_200_OK,
-    summary="Actualizar usuario parcialmente"
-)
-def update_partial_user(
-    user_id: int,
-    user_data: UserPatch
-):
-    return patch_user(user_id, user_data)
-=======
     response_model=UserResponse,
     summary="Actualizar parcialmente un usuario",
     description="Actualiza parcialmente la información de un usuario.",
@@ -263,18 +193,10 @@ def patch(
         user_id,
         user
     )
->>>>>>> device_systems_security
 
 
 @router.delete(
     "/{user_id}",
-<<<<<<< HEAD
-    status_code=status.HTTP_200_OK,
-    summary="Eliminar usuario"
-)
-def remove_user(user_id: int):
-    return delete_user(user_id)
-=======
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Eliminar usuario",
     description="Elimina un usuario del sistema.",
@@ -298,4 +220,3 @@ def delete(
     return Response(
         status_code=status.HTTP_204_NO_CONTENT
     )
->>>>>>> device_systems_security

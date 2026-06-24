@@ -39,19 +39,8 @@ if os.getenv("ENV", "development") == "development":
 # Aplicación FastAPI
 # =====================================================
 
-
 app = FastAPI(
     title="device_systems API",
-<<<<<<< HEAD
-    description="API REST para la gestión de usuarios del sistema device_systems",
-    version="2.0.0",
-    contact={
-        "name": "Jhon Lenis"
-    }
-)
-
-
-=======
     description="""
 API REST segura para la gestión de usuarios, dispositivos y préstamos.
 
@@ -145,19 +134,12 @@ app.middleware("http")(request_middleware)
 # =====================================================
 
 app.include_router(auth_router)
->>>>>>> device_systems_security
 app.include_router(user_router)
 app.include_router(device_router)
 app.include_router(loan_router)
 app.include_router(security_router)
 
 
-<<<<<<< HEAD
-@app.get("/")
-def root():
-    return {
-        "message": "Bienvenido a device_systems API"
-=======
 # =====================================================
 # Endpoint principal
 # =====================================================
@@ -196,5 +178,4 @@ def root():
             "Loans",
             "Security"
         ]
->>>>>>> device_systems_security
     }

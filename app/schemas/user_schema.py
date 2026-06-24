@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-from pydantic import BaseModel, EmailStr
-from typing import Optional
-
-
-class UserBase(BaseModel):
-=======
 import re
 from datetime import datetime
 from typing import Literal, Optional
@@ -17,6 +10,43 @@ from pydantic import (
     field_validator
 )
 
+
+# =====================================================
+# Validador de contraseña reutilizable
+# =====================================================
+
+def validate_password_rules(value: str) -> str:
+    if " " in value:
+        raise ValueError(
+            "La contraseña no puede contener espacios."
+        )
+
+    if len(value) < 8:
+        raise ValueError(
+            "La contraseña debe tener mínimo 8 caracteres."
+        )
+
+    if not re.search(r"[A-Z]", value):
+        raise ValueError(
+            "La contraseña debe contener al menos una mayúscula."
+        )
+
+    if not re.search(r"[a-z]", value):
+        raise ValueError(
+            "La contraseña debe contener al menos una minúscula."
+        )
+
+    if not re.search(r"\d", value):
+        raise ValueError(
+            "La contraseña debe contener al menos un número."
+        )
+
+    return value
+
+
+# =====================================================
+# Schemas
+# =====================================================
 
 class UserBase(BaseModel):
 
@@ -58,34 +88,8 @@ class UserCreate(UserBase):
 
     @field_validator("password")
     @classmethod
-    def validate_password(cls, value: str):
-
-        if " " in value:
-            raise ValueError(
-                "La contraseña no puede contener espacios."
-            )
-
-        if len(value) < 8:
-            raise ValueError(
-                "La contraseña debe tener mínimo 8 caracteres."
-            )
-
-        if not re.search(r"[A-Z]", value):
-            raise ValueError(
-                "La contraseña debe contener al menos una mayúscula."
-            )
-
-        if not re.search(r"[a-z]", value):
-            raise ValueError(
-                "La contraseña debe contener al menos una minúscula."
-            )
-
-        if not re.search(r"\d", value):
-            raise ValueError(
-                "La contraseña debe contener al menos un número."
-            )
-
-        return value
+    def validate_password(cls, value: str) -> str:
+        return validate_password_rules(value)
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -111,34 +115,20 @@ class UserUpdate(UserBase):
 
     @field_validator("password")
     @classmethod
-    def validate_password(cls, value: str):
+    def validate_password(cls, value: str) -> str:
+        return validate_password_rules(value)
 
-        if " " in value:
-            raise ValueError(
-                "La contraseña no puede contener espacios."
-            )
-
-        if len(value) < 8:
-            raise ValueError(
-                "La contraseña debe tener mínimo 8 caracteres."
-            )
-
-        if not re.search(r"[A-Z]", value):
-            raise ValueError(
-                "La contraseña debe contener al menos una mayúscula."
-            )
-
-        if not re.search(r"[a-z]", value):
-            raise ValueError(
-                "La contraseña debe contener al menos una minúscula."
-            )
-
-        if not re.search(r"\d", value):
-            raise ValueError(
-                "La contraseña debe contener al menos un número."
-            )
-
-        return value
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "name": "Juan Pérez Actualizado",
+                "email": "juan_actualizado@sena.edu.co",
+                "password": "Password123",
+                "role": "support",
+                "is_active": True
+            }
+        }
+    )
 
 
 class UserPatch(BaseModel):
@@ -180,70 +170,54 @@ class UserPatch(BaseModel):
 
     @field_validator("password")
     @classmethod
-    def validate_password(cls, value: Optional[str]):
-
+    def validate_password(cls, value: Optional[str]) -> Optional[str]:
         if value is None:
             return value
+        return validate_password_rules(value)
 
-        if " " in value:
-            raise ValueError(
-                "La contraseña no puede contener espacios."
-            )
-
-        if len(value) < 8:
-            raise ValueError(
-                "La contraseña debe tener mínimo 8 caracteres."
-            )
-
-        if not re.search(r"[A-Z]", value):
-            raise ValueError(
-                "La contraseña debe contener al menos una mayúscula."
-            )
-
-        if not re.search(r"[a-z]", value):
-            raise ValueError(
-                "La contraseña debe contener al menos una minúscula."
-            )
-
-        if not re.search(r"\d", value):
-            raise ValueError(
-                "La contraseña debe contener al menos un número."
-            )
-
-        return value
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "name": "Juan Pérez",
+                "role": "support",
+                "is_active": True
+            }
+        }
+    )
 
 
 class UserResponse(BaseModel):
 
-    id: int
->>>>>>> device_systems_security
-    name: str
-    email: EmailStr
-    role: str
-    is_active: bool
-    created_at: datetime
+    id: int = Field(
+        ...,
+        description="ID del usuario"
+    )
 
-<<<<<<< HEAD
+    name: str = Field(
+        ...,
+        description="Nombre del usuario"
+    )
 
-class UserCreate(UserBase):
-    pass
+    email: EmailStr = Field(
+        ...,
+        description="Correo electrónico del usuario"
+    )
 
+    role: str = Field(
+        ...,
+        description="Rol del usuario"
+    )
 
-class UserUpdate(UserBase):
-    pass
+    is_active: bool = Field(
+        ...,
+        description="Estado del usuario"
+    )
 
+    created_at: datetime = Field(
+        ...,
+        description="Fecha de creación del usuario"
+    )
 
-class UserPatch(BaseModel):
-    name: Optional[str] = None
-    email: Optional[EmailStr] = None
-    role: Optional[str] = None
-    is_active: Optional[bool] = None
-
-
-class UserResponse(UserBase):
-    id: int
-=======
     model_config = ConfigDict(
         from_attributes=True
     )
->>>>>>> device_systems_security
