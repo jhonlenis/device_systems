@@ -6,15 +6,11 @@ from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-# =====================================================
 # Logger
-# =====================================================
 
 logger = logging.getLogger("device_systems")
 
-# =====================================================
 # Configuración JWT
-# =====================================================
 
 SECRET_KEY = os.getenv("SECRET_KEY", "device_systems_secret_key_sena_2026")
 
